@@ -15,9 +15,31 @@ using namespace std;
  * TODO: Replace this comment with a description of this function
  * and how you implemented it.
  */
+
+bool solveHelper(MarbleBoard& board, Vector<Move>& moveHistory, Set<BoardEncoding>& visited) {
+    if (board.isSolved()) {
+        return true;
+    } else if (visited.contains(board.encode())) {
+        return false;
+    } else {
+        Vector<Move> possMoves = board.findPossibleMoves();
+        for (Move move : possMoves) {
+            board.makeMove(move);
+            moveHistory.add(move);
+            if (solveHelper(board, moveHistory, visited)) {
+                return true;
+            }
+            board.undoMove(move);
+            moveHistory.remove(moveHistory.size() - 1);
+        }
+        return false;
+    }
+    visited.add(board.encode());
+}
+
 bool solvePuzzle(MarbleBoard& board, Vector<Move>& moveHistory) {
-    /* TODO: Fill in this function. */
-    return false;
+    Set<BoardEncoding> visited;
+    return solveHelper(board, moveHistory, visited);
 }
 
 

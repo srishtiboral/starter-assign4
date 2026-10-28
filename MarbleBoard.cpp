@@ -15,7 +15,25 @@ using namespace std;
  */
 Vector<Move> MarbleBoard::findPossibleMoves() const {
     Vector<Move> moves;
-    /* TODO: Fill in the remainder of this function. */
+    for (int row = 0; row < _grid.numRows(); row++) {
+        for (int col = 0; col < _grid.numCols(); col++) {
+            GridLocation initialLoc(row, col);
+            if (_grid[initialLoc] == MARBLE_OCCUPIED) {
+                if (_grid.inBounds(row + 2, col) && _grid[row + 1][col] == MARBLE_OCCUPIED && _grid[row + 2][col] == MARBLE_EMPTY) { // down loc
+                    moves.add( {initialLoc, GridLocation(row + 2, col)} );
+                }
+                if (_grid.inBounds(row, col + 2) &&_grid[row][col + 1] == MARBLE_OCCUPIED && _grid[row][col + 2] == MARBLE_EMPTY) { // right loc
+                    moves.add( {initialLoc, GridLocation(row, col + 2)} );
+                }
+                if (_grid.inBounds(row - 2, col) && _grid[row - 1][col] == MARBLE_OCCUPIED && _grid[row - 2][col] == MARBLE_EMPTY) { // up loc
+                    moves.add( {initialLoc, GridLocation(row - 2, col)} );
+                }
+                if (_grid.inBounds(row, col - 2) && _grid[row][col - 1] == MARBLE_OCCUPIED && _grid[row][col - 2] == MARBLE_EMPTY) { // left loc
+                    moves.add( {initialLoc, GridLocation(row, col - 2)} );
+                }
+            }
+        }
+    }
     return moves;
 }
 
