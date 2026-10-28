@@ -24,7 +24,13 @@ Vector<Move> MarbleBoard::findPossibleMoves() const {
  * and how you implemented it.
  */
 void MarbleBoard::makeMove(Move move) {
-    /* TODO: Fill in this function. */
+    GridLocation middleLoc((move.start.row + move.end.row) / 2,
+                           (move.start.col + move.end.col) / 2); // grid location of middle
+    _grid[move.end] = MARBLE_OCCUPIED;
+    _grid[middleLoc] = MARBLE_EMPTY;
+    _grid[move.start] = MARBLE_EMPTY;
+    _numMarbles--;
+
 }
 
 /*
@@ -32,10 +38,13 @@ void MarbleBoard::makeMove(Move move) {
  * and how you implemented it.
  */
 void MarbleBoard::undoMove(Move move) {
-    /* TODO: Fill in this function. */
+    GridLocation middleLoc((move.start.row + move.end.row) / 2,
+                           (move.start.col + move.end.col) / 2); // grid location of middle
+    _grid[move.end] = MARBLE_EMPTY;
+    _grid[middleLoc] = MARBLE_OCCUPIED;
+    _grid[move.start] = MARBLE_OCCUPIED;
+    _numMarbles++;
 }
-
-
 
 
 
@@ -108,7 +117,7 @@ PROVIDED_TEST("MarbleBoard::findPossibleMoves: two marbles side by side can jump
     }));
     Vector<Move> moves = board.findPossibleMoves();
     Set<Move> expected = { { {3, 1}, {3, 3} },     // left marble jumps right
-                           { {3, 2}, {3, 0} } };   // right marble jumps left
+                          { {3, 2}, {3, 0} } };   // right marble jumps left
     EXPECT_EQUAL(moves.size(), 2);
     EXPECT_EQUAL(toSet(moves), expected);
 }
@@ -139,7 +148,7 @@ PROVIDED_TEST("MarbleBoard::findPossibleMoves: the full board has exactly four m
     MarbleBoard board;
     Vector<Move> moves = board.findPossibleMoves();
     Set<Move> expected = { { {1, 3}, {3, 3} }, { {5, 3}, {3, 3} },
-                           { {3, 1}, {3, 3} }, { {3, 5}, {3, 3} } };
+                          { {3, 1}, {3, 3} }, { {3, 5}, {3, 3} } };
     EXPECT_EQUAL(moves.size(), 4);
     EXPECT_EQUAL(toSet(moves), expected);
 }
@@ -164,14 +173,14 @@ PROVIDED_TEST("MarbleBoard::makeMove and undoMove: jump to the left, then undo")
     Move move = { {3, 2}, {3, 0} };
     board.makeMove(move);
     EXPECT_EQUAL(board, MarbleBoard(boardFromStrings({
-        "XX---XX",
-        "XX---XX",
-        "-------",
-        "O------",
-        "-------",
-        "XX---XX",
-        "XX---XX"
-    })));
+                            "XX---XX",
+                            "XX---XX",
+                            "-------",
+                            "O------",
+                            "-------",
+                            "XX---XX",
+                            "XX---XX"
+                        })));
     EXPECT(board.isSolved());
     board.undoMove(move);
     EXPECT_EQUAL(board, original);

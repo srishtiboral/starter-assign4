@@ -1,7 +1,7 @@
 /**
  * File: warmup.cpp
  * ----------------
- * @author Julie Zelenski, Fall 2020
+ * @author Srishti Boral, Anika Mukherjee Fall 2026
  * This code is provided as part of an exercise to practice using a
  * debugger. This program has buggy use of recursion.
  */
