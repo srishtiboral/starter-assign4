@@ -102,7 +102,30 @@ void hanoiAnimation() {
 /* * * * * * Test Cases * * * * * */
 
 // TODO: add your STUDENT_TEST test cases here!
+STUDENT_TEST("buggyCount vs correct on smallest broken input, one nonzero element") {
+    Vector<int> nums = {1};
+    EXPECT_EQUAL(countZeroSumSubsets(nums, 0, 0), 1);
+    EXPECT_EQUAL(buggyCount(nums, 0, 0), 1);
+}
 
+STUDENT_TEST("buggyCount vs correct on inputs that happen to work") {
+    Vector<int> empty = {};
+    EXPECT_EQUAL(buggyCount(empty, 0, 0), countZeroSumSubsets(empty, 0, 0));
+    Vector<int> zero = {0};
+    EXPECT_EQUAL(buggyCount(zero, 0, 0), countZeroSumSubsets(zero, 0, 0));
+}
+
+STUDENT_TEST("buggyCount vs correct on handout example {3, 1, -3}") {
+    Vector<int> nums = {3, 1, -3};
+    EXPECT_EQUAL(countZeroSumSubsets(nums, 0, 0), 2);
+    EXPECT_EQUAL(buggyCount(nums, 0, 0), 2);
+}
+
+STUDENT_TEST("buggyCount vs correct when the whole list sums to 0") {
+    Vector<int> nums = {3, -3};
+    EXPECT_EQUAL(countZeroSumSubsets(nums, 0, 0), 2);
+    EXPECT_EQUAL(buggyCount(nums, 0, 0), 2);
+}
 
 /* Please not add/modify/remove the PROVIDED_TEST entries below.
  * Place your student tests cases above the provided tests.

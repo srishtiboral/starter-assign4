@@ -17,13 +17,13 @@ What is the value of the `totalMoves` variable at this point?
 A3. Line 79 of the first call to the moveTower recursive function, totalMoves is 1
 
 Q4. What is the smallest possible input that you used to trigger the bug in the program?
-A4. TODO
+A4. {1}. Any list with one nonzero number works. The correct answer is 1 (just the empty subset), but buggyCount returns 0.
 
 Q5. Identify the one-character error in the code and explain why that bug causes the function
 to return the output you see when running on the minimal input you listed above.
 You should be able to specifically account for how the error causes the result to
 change from “completely correct” to “terribly wrong.”
-A5. TODO
+A5. The bug is on line 52: sumSoFar += v[index] should be sumSoFar + v[index]. The += changes sumSoFar itself instead of just passing a new value. So the “with” call adds the number, and then the “without” call also gets the number, because sumSoFar was already changed. For {1}, both calls end up with a sum of 1, so both return 0 and the total is 0 instead of 1. This happens at every level, so the “without” branch never actually leaves anything out. Every path ends with the sum of the whole list. That means buggyCount returns 0 whenever the whole list doesn’t add to 0, and 2^n whenever it does. That’s how one character turns it from completely correct to terribly wrong.
 
 Marbles
 -------
