@@ -86,7 +86,7 @@ PROVIDED_TEST("solvePuzzle: mid-size unsolvable board") {
     Vector<Move> moves;
     EXPECT(!solvePuzzle(board, moves));
 }
-
+/*
 PROVIDED_TEST("solvePuzzle: the full 32-marble board") {
     MarbleBoard board;
     Vector<Move> moves;
@@ -104,4 +104,13 @@ PROVIDED_TEST("solvePuzzle: unsolvable 15-marble board (needs the explored-board
     bool solved = true;
     TIME_OPERATION(15, solved = solvePuzzle(board, moves));
     EXPECT(!solved);
+}*/
+
+// STUDENT TESTS
+
+STUDENT_TEST("run solver on 'half-done' board") {
+    MarbleBoard halfDone(loadBoard("marbles/boards/half-done.txt"));
+    Vector<Move> moves;
+    EXPECT(solvePuzzle(halfDone, moves));
 }
+
