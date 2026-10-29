@@ -1,9 +1,16 @@
 /*
  * File: marbles.cpp
  * -----------------
- * TODO: Replace this comment with a description of your program, your name,
- * and your partner's name if you worked as a pair. Cite any sources of help.
+ * Names: Anika Mukherjee, Srishti Boral
+ * Course: CS 106B
+ * Description: This file creates a recursive backtracking solver for the game
+ * Marble Solitaire. solvePuzzle() takes a MarbleBoard and finds a sequence of
+ * jumps that solves the board (aka leaves the board with only one marble remaining
+ * while following the rules of the moves from the game).
+ * solveHelper() does majority of the work to solve the Puzzle, using the choose-explore-unchoose
+ * pattern to recursively solve each board that is passed into it.
  */
+
 #include <iostream>
 #include "backtracking.h"
 #include "hashset.h"
@@ -12,8 +19,11 @@
 using namespace std;
 
 /*
- * TODO: Replace this comment with a description of this function
- * and how you implemented it.
+ * This function recursively tries all legal moves using the choose-explore-unchoose method,
+ * and skips boards if they've already been visited before.
+ * Returns: true if a sequence of moves leaves one marble on the board, false otherwise.
+ * Parameters: board (current state of the board), moveHistory (moves made so far), and
+ *              visited (boards already explored).
  */
 
 bool solveHelper(MarbleBoard& board, Vector<Move>& moveHistory, Set<BoardEncoding>& visited) {
@@ -36,6 +46,14 @@ bool solveHelper(MarbleBoard& board, Vector<Move>& moveHistory, Set<BoardEncodin
         return false;
     }
 }
+
+/*
+ * This function sets up a set of visited boards and recursively calls solveHelper to
+ * search for a winning sequence of moves.
+ * Returns: true if the board is solved, false otherwise
+ * Parameters: board (starting state of the board) and moveHistory (the Set of winning moves).
+ *
+ */
 
 bool solvePuzzle(MarbleBoard& board, Vector<Move>& moveHistory) {
     Set<BoardEncoding> visited;
@@ -86,7 +104,7 @@ PROVIDED_TEST("solvePuzzle: mid-size unsolvable board") {
     Vector<Move> moves;
     EXPECT(!solvePuzzle(board, moves));
 }
-/*
+
 PROVIDED_TEST("solvePuzzle: the full 32-marble board") {
     MarbleBoard board;
     Vector<Move> moves;
@@ -104,7 +122,7 @@ PROVIDED_TEST("solvePuzzle: unsolvable 15-marble board (needs the explored-board
     bool solved = true;
     TIME_OPERATION(15, solved = solvePuzzle(board, moves));
     EXPECT(!solved);
-}*/
+}
 
 // STUDENT TESTS
 
