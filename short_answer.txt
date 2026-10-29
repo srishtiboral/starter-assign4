@@ -28,10 +28,12 @@ A5. The bug is on line 52: sumSoFar += v[index] should be sumSoFar + v[index]. T
 Marbles
 -------
 Q6. How much time does our visited boards tracking save us? Run the solver on the "half-done" board in the res folder and note at the bottom of the screen how many boards it said it tried. Now comment-out your code that skips already-visited boards and run the experiment again. Give the two counts and explain the results. Would you expect the percentage gap between the two counts to be same/greater/less if you re-run this experiment starting with the whole board? (try it if you dare!)
-A6. TODO
+A6. The solver explores 1796 boards in 10 ms to solve "half-done". After commenting out the code that skips the already-visited boards, the solver explores 21417 boards in 109 ms. This shows that the solver explores almost 12x more boards without that line of code (21417 / 1796 = 11.925). The amount of time it took also was scaled around 11x (109 / 10 = 10.9). The reason why we get such scaled results is because the version without tracking explores the same board multiple times, since many different move orders reach the same board. When we track the boards we've visited before, the solver only explores each board once, which greatly reduces the amount of boards explored and time wasted. For the full board, the percentage gap would be even greater because the half-done board has so many open spots and at every step there are multiple ways of reaching the same board. As a result, the solver redoes the same step and revisits the same board multiple times, and since it's the full board and the overall scale is larger, the percentage change would be much higher too. 
 
 Q7. What edit would you need to make to change the code to apply the traditional rule that the game is only won if the last remaining marble lands in the center spot? (our version lets it land anywhere) Describe exactly where the change would be made, and what it would be.
-A7. TODO
+A7. The change would be made in the function solveHelper at the base case (board.isSolved()). To implement the traditional rule of the game, we'd add another requirement in the if statement that the marble in the center of the board = MARBLE_OCCUPIED. The exact code would be 
+if (board.isSolved() && (board.at({board.toGrid().numRows() / 2, board.toGrid().numCols() / 2}) == MARBLE_OCCUPIED))
+By changing this line, we ensure that not only is the board solved, the marble in the center is the only remaining marble, which matches the traditional rules. 
 
 Redistrict
 ----------

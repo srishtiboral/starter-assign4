@@ -22,6 +22,7 @@ bool solveHelper(MarbleBoard& board, Vector<Move>& moveHistory, Set<BoardEncodin
     } else if (visited.contains(board.encode())) {
         return false;
     } else {
+        visited.add(board.encode());
         Vector<Move> possMoves = board.findPossibleMoves();
         for (Move move : possMoves) {
             board.makeMove(move);
@@ -34,7 +35,6 @@ bool solveHelper(MarbleBoard& board, Vector<Move>& moveHistory, Set<BoardEncodin
         }
         return false;
     }
-    visited.add(board.encode());
 }
 
 bool solvePuzzle(MarbleBoard& board, Vector<Move>& moveHistory) {
