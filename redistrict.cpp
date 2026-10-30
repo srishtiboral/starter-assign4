@@ -28,22 +28,24 @@ int subgridSum(Grid<int>& g, GridLocationRange range) {
 }
 
 void divideHorizontal(GridLocationRange range, int indexOfBottomMostRowInTopPart, GridLocationRange& topPart, GridLocationRange& bottomPart) {
-    GridLocation startLoc(range.startRow(), range.startCol());
-    GridLocation topEndLoc;
-    GridLocation bottomEndLoc;
-    for (GridLocation loc : range) {
-        if (loc.row >= indexOfBottomMostRowInTopPart){
-            topEndLoc = {loc.row, loc.col};
-        } else {
-            bottomEndLoc = {loc.row, loc.col};
-        }
-    }
-    topPart = GridLocationRange (startLoc, topEndLoc);
-    bottomPart = GridLocationRange(topEndLoc, bottomEndLoc);
+    GridLocation topStartLoc(range.startRow(), range.startCol());
+    GridLocation topEndLoc(indexOfBottomMostRowInTopPart, range.endCol());
+    GridLocation bottomStartLoc(indexOfBottomMostRowInTopPart + 1, range.startCol());
+    GridLocation bottomEndLoc(range.endRow(), range.endCol());
+
+    topPart = GridLocationRange (topStartLoc, topEndLoc);
+    bottomPart = GridLocationRange(bottomStartLoc, bottomEndLoc);
 
 }
 
 void divideVertical(GridLocationRange range, int indexOfRightMostColInLeftSide, GridLocationRange& leftSide, GridLocationRange& rightSide) {
+    GridLocation leftStartLoc(range.startRow(), range.startCol());
+    GridLocation leftEndLoc(range.endRow(), indexOfRightMostColInLeftSide);
+    GridLocation rightStartLoc(range.startRow() , indexOfRightMostColInLeftSide + 1);
+    GridLocation rightEndLoc(range.endRow(), range.endCol());
+
+    leftSide = GridLocationRange (leftStartLoc, leftEndLoc);
+    rightSide = GridLocationRange (rightStartLoc, rightEndLoc);
 }
 
 
@@ -51,22 +53,112 @@ void divideVertical(GridLocationRange range, int indexOfRightMostColInLeftSide, 
  * TODO: Replace this comment with a descriptive function
  * header comment.
  */
-bool canRedistrict(Grid<int>& populationGrid, int nDistricts) {
-    /* TODO: Implement this function. */
+bool redistrictHelper(Grid<int>& populationGrid, GridLocationRange range, int target){
+    int population = subgridSum(populationGrid, range);
+    if (population == target) {
+        return true;
+    }
+    if (population % target != 0) {
+        return false;
+    }
+
+    // horizontal cuts
+    for (int r = range.startRow(); r < range.endRow(); r++) {
+        GridLocationRange top, bottom;
+        divideHorizontal(range, r, top, bottom);
+        if (redistrictHelper(populationGrid, top, target) && redistrictHelper(populationGrid, bottom, target)) {
+            return true;
+        }
+    }
+
+    // vertical cuts
+    for (int c = range.startCol(); c < range.endCol(); c++) {
+        GridLocationRange left, right;
+        divideVertical(range, c, left, right);
+        if (redistrictHelper(populationGrid, left, target) && redistrictHelper(populationGrid, right, target)) {
+            return true;
+        }
+    }
     return false;
 }
 
+
+bool canRedistrict(Grid<int>& populationGrid, int nDistricts) {
+    GridLocationRange totalRange = populationGrid.locations();
+    int target = subgridSum(populationGrid, totalRange) / nDistricts;
+    return redistrictHelper(populationGrid, totalRange, target);
+}
+
+
 /* * * * * * Test Cases * * * * * */
 
-// TODO: add your STUDENT_TEST test cases here!
+// STUDENT TESTS
+STUDENT_TEST("divideHorizontal splits ranges correctly") {
+    GridLocationRange top, bottom;
+
+    // Case 1: full 4x3 range, split after row 1
+    GridLocationRange range1(0, 0, 3, 2);
+    divideHorizontal(range1, 1, top, bottom);
+    EXPECT_EQUAL(top.startLocation(), GridLocation(0, 0));
+    EXPECT_EQUAL(top.endLocation(), GridLocation(1, 2));
+    EXPECT_EQUAL(bottom.startLocation(), GridLocation(2, 0));
+    EXPECT_EQUAL(bottom.endLocation(), GridLocation(3, 2));
+
+    // Case 2: split at the last valid row (bottom part is one row)
+    divideHorizontal(range1, 2, top, bottom);
+    EXPECT_EQUAL(top.endLocation(), GridLocation(2, 2));
+    EXPECT_EQUAL(bottom.startLocation(), GridLocation(3, 0));
+    EXPECT_EQUAL(bottom.numRows(), 1);
+
+    // Case 3: offset range (rows 2-5, cols 1-3), split after row 3
+    GridLocationRange range2(2, 1, 5, 3);
+    divideHorizontal(range2, 3, top, bottom);
+    EXPECT_EQUAL(top.startLocation(), GridLocation(2, 1));
+    EXPECT_EQUAL(top.endLocation(), GridLocation(3, 3));
+    EXPECT_EQUAL(bottom.startLocation(), GridLocation(4, 1));
+    EXPECT_EQUAL(bottom.endLocation(), GridLocation(5, 3));
+
+    // Sanity check: the two pieces together cover the original
+    EXPECT_EQUAL(top.size() + bottom.size(), range2.size());
+}
+
+STUDENT_TEST("divideVertical splits ranges correctly") {
+    GridLocationRange left, right;
+
+    // Case 1: full 3x4 range, split after column 1
+    GridLocationRange range1(0, 0, 2, 3);
+    divideVertical(range1, 1, left, right);
+    EXPECT_EQUAL(left.startLocation(), GridLocation(0, 0));
+    EXPECT_EQUAL(left.endLocation(), GridLocation(2, 1));
+    EXPECT_EQUAL(right.startLocation(), GridLocation(0, 2));
+    EXPECT_EQUAL(right.endLocation(), GridLocation(2, 3));
+
+    // Case 2: split at the first column (left part is one column)
+    divideVertical(range1, 0, left, right);
+    EXPECT_EQUAL(left.endLocation(), GridLocation(2, 0));
+    EXPECT_EQUAL(left.numCols(), 1);
+    EXPECT_EQUAL(right.startLocation(), GridLocation(0, 1));
+
+    // Case 3: split at the last valid column (right part is one column)
+    divideVertical(range1, 2, left, right);
+    EXPECT_EQUAL(left.endLocation(), GridLocation(2, 2));
+    EXPECT_EQUAL(right.startLocation(), GridLocation(0, 3));
+    EXPECT_EQUAL(right.numCols(), 1);
+
+    // Case 4: offset range (rows 1-3, cols 2-5), split after column 3
+    GridLocationRange range2(1, 2, 3, 5);
+    divideVertical(range2, 3, left, right);
+    EXPECT_EQUAL(left.startLocation(), GridLocation(1, 2));
+    EXPECT_EQUAL(left.endLocation(), GridLocation(3, 3));
+    EXPECT_EQUAL(right.startLocation(), GridLocation(1, 4));
+    EXPECT_EQUAL(right.endLocation(), GridLocation(3, 5));
+
+    // Sanity check: the two pieces together cover the original
+    EXPECT_EQUAL(left.size() + right.size(), range2.size());
+}
 
 
-
-/* Please not add/modify/remove the PROVIDED_TEST entries below.
- * Place your student tests cases above the provided tests.
- */
-
-
+// PROVIDED TESTS
 PROVIDED_TEST("subgridSum sums values in grid range") {
     // This is an example test of helper function subgridSum
     Grid<int> grid = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 10, 10} };
