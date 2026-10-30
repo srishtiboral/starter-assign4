@@ -20,10 +20,27 @@ using namespace std;
  * NOTE: the prototype of required function canRedistrict must not be changed.
  */
 int subgridSum(Grid<int>& g, GridLocationRange range) {
-    return 0;
+    int sum = 0;
+    for (GridLocation loc: range){
+        sum += g[loc];
+    }
+    return sum;
 }
 
 void divideHorizontal(GridLocationRange range, int indexOfBottomMostRowInTopPart, GridLocationRange& topPart, GridLocationRange& bottomPart) {
+    GridLocation startLoc(range.startRow(), range.startCol());
+    GridLocation topEndLoc;
+    GridLocation bottomEndLoc;
+    for (GridLocation loc : range) {
+        if (loc.row >= indexOfBottomMostRowInTopPart){
+            topEndLoc = {loc.row, loc.col};
+        } else {
+            bottomEndLoc = {loc.row, loc.col};
+        }
+    }
+    topPart = GridLocationRange (startLoc, topEndLoc);
+    bottomPart = GridLocationRange(topEndLoc, bottomEndLoc);
+
 }
 
 void divideVertical(GridLocationRange range, int indexOfRightMostColInLeftSide, GridLocationRange& leftSide, GridLocationRange& rightSide) {
