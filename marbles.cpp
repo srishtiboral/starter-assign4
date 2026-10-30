@@ -51,7 +51,7 @@ bool solveHelper(MarbleBoard& board, Vector<Move>& moveHistory, Set<BoardEncodin
  * This function sets up a set of visited boards and recursively calls solveHelper to
  * search for a winning sequence of moves.
  * Returns: true if the board is solved, false otherwise
- * Parameters: board (starting state of the board) and moveHistory (the Set of winning moves).
+ * Parameters: board (starting state of the board) and moveHistory (filled in with the winning moves, in order).
  *
  */
 
@@ -126,9 +126,35 @@ PROVIDED_TEST("solvePuzzle: unsolvable 15-marble board (needs the explored-board
 
 // STUDENT TESTS
 
-STUDENT_TEST("run solver on 'half-done' board") {
-    MarbleBoard halfDone(loadBoard("marbles/boards/half-done.txt"));
+STUDENT_TEST("solvePuzzle: one marble not in the center is already solved") {
+    MarbleBoard board(loadBoard("marbles/boards/off-center.txt"));
     Vector<Move> moves;
-    EXPECT(solvePuzzle(halfDone, moves));
+    EXPECT(solvePuzzle(board, moves));
+    EXPECT_EQUAL(moves.size(), 0);
 }
+STUDENT_TEST("solvePuzzle: three-step board needs backtracking and takes 3 moves") {
+    Grid<Marble> original = loadBoard("marbles/boards/three-step.txt");
+    MarbleBoard board(original);
+    Vector<Move> moves;
+    EXPECT(solvePuzzle(board, moves));
+    EXPECT_EQUAL(moves.size(), 3);
+    EXPECT_EQUAL(checkSolution(original, moves), "");
+}
+STUDENT_TEST("solvePuzzle: boards where no jump is possible cannot be solved") {
+    for (string name : {"no-diagonals", "off-the-edge"}) {
+        MarbleBoard board(loadBoard("marbles/boards/" + name + ".txt"));
+        Vector<Move> moves;
+        EXPECT(!solvePuzzle(board, moves));
+    }
+}
+STUDENT_TEST("solvePuzzle: more solvable boards from the boards folder") {
+    for (string name : {"letter-i", "pyramid", "half-done"}) {
+        Grid<Marble> original = loadBoard("marbles/boards/" + name + ".txt");
+        MarbleBoard board(original);
+        Vector<Move> moves;
+        EXPECT(solvePuzzle(board, moves));
+        EXPECT_EQUAL(checkSolution(original, moves), "");
+    }
+}
+
 

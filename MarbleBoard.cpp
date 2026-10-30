@@ -1,18 +1,27 @@
 /*
  * File: MarbleBoard.cpp
- * ---------------------
- * TODO: Replace this comment with a description of your program, your name,
- * and your partner's name if you worked as a pair. Cite any sources of help.
+ * Names: Anika Mukherjee, Srishti Boral
+ * Course: CS 106B
+ * Description: This file implements the MarbleBoard class for Marble
+ * Solitaire. findPossibleMoves finds every legal jump on the current board,
+ * and makeMove and undoMove update the board when a jump is made or taken
+ * back. The solver in marbles.cpp uses these three functions for its
+ * choose-explore-unchoose search.
  */
+
 #include "MarbleBoard.h"
 #include "set.h"
 #include "SimpleTest.h"
 using namespace std;
 
 /*
- * TODO: Replace this comment with a description of this function
- * and how you implemented it.
+ * Returns every legal move on the current board. It loops over every square,
+ * and for each square with a marble it checks all four directions. A jump is
+ * legal if the landing square is in bounds and empty and the square in between
+ * has a marble. Corner squares are MARBLE_INVALID, so they never count as empty.
+ * Returns: a Vector of all legal moves, in no particular order
  */
+
 Vector<Move> MarbleBoard::findPossibleMoves() const {
     Vector<Move> moves;
     for (int row = 0; row < _grid.numRows(); row++) {
@@ -37,10 +46,11 @@ Vector<Move> MarbleBoard::findPossibleMoves() const {
     return moves;
 }
 
-/*
- * TODO: Replace this comment with a description of this function
- * and how you implemented it.
+/* Makes a jump. The marble at start moves to end, and the marble in between
+ * (the midpoint of start and end) is removed. Updates the marble count.
+ * Parameter: move (the jump to make, assumed to be legal)
  */
+
 void MarbleBoard::makeMove(Move move) {
     GridLocation middleLoc((move.start.row + move.end.row) / 2,
                            (move.start.col + move.end.col) / 2); // grid location of middle
@@ -48,12 +58,12 @@ void MarbleBoard::makeMove(Move move) {
     _grid[middleLoc] = MARBLE_EMPTY;
     _grid[move.start] = MARBLE_EMPTY;
     _numMarbles--;
-
 }
 
 /*
- * TODO: Replace this comment with a description of this function
- * and how you implemented it.
+ * Takes back a jump. The marble at end goes back to start, and the marble
+ * in between is put back. Updates the marble count.
+ * Parameter: move (the jump to undo, assumed to be the last move made)
  */
 void MarbleBoard::undoMove(Move move) {
     GridLocation middleLoc((move.start.row + move.end.row) / 2,
@@ -63,12 +73,6 @@ void MarbleBoard::undoMove(Move move) {
     _grid[move.start] = MARBLE_OCCUPIED;
     _numMarbles++;
 }
-
-
-
-
-
-
 
 /* The functions below have already been written for you! */
 
@@ -203,4 +207,29 @@ PROVIDED_TEST("MarbleBoard::makeMove and undoMove: jump to the left, then undo")
     board.undoMove(move);
     EXPECT_EQUAL(board, original);
     EXPECT_EQUAL(board.numMarbles(), 2);
+}
+
+//STUDENT TESTS
+STUDENT_TEST("MarbleBoard::findPossibleMoves: one marble not in the center has no moves") {
+    MarbleBoard board(loadBoard("marbles/boards/off-center.txt"));
+    EXPECT_EQUAL(board.findPossibleMoves().size(), 0);
+}
+
+STUDENT_TEST("MarbleBoard::findPossibleMoves: small plus sign has 4 moves, all by the center marble") {
+    MarbleBoard board(loadBoard("marbles/boards/five-plus.txt"));
+    EXPECT_EQUAL(board.findPossibleMoves().size(), 4);
+}
+STUDENT_TEST("MarbleBoard::findPossibleMoves: three-step board has 4 possible first moves") {
+    MarbleBoard board(loadBoard("marbles/boards/three-step.txt"));
+    EXPECT_EQUAL(board.findPossibleMoves().size(), 4);
+}
+STUDENT_TEST("MarbleBoard::makeMove and undoMove: jump to the right, then undo") {
+    MarbleBoard board(loadBoard("marbles/boards/one-jump.txt"));
+    MarbleBoard original = board;
+    Move move = { {3, 1}, {3, 3} };
+    board.makeMove(move);
+    EXPECT(board.isSolved());
+    EXPECT_EQUAL(board.at({3, 3}), MARBLE_OCCUPIED);
+    board.undoMove(move);
+    EXPECT_EQUAL(board, original);
 }
