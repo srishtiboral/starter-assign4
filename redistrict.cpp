@@ -42,9 +42,8 @@ void divideHorizontal(GridLocationRange range, int indexOfBottomMostRowInTopPart
     GridLocation bottomStartLoc(indexOfBottomMostRowInTopPart + 1, range.startCol());
     GridLocation bottomEndLoc(range.endRow(), range.endCol());
 
-    topPart = GridLocationRange (topStartLoc, topEndLoc);
+    topPart = GridLocationRange(topStartLoc, topEndLoc);
     bottomPart = GridLocationRange(bottomStartLoc, bottomEndLoc);
-
 }
 /*
  * Cuts a range with a vertical line into a left side and a right side.
@@ -58,8 +57,8 @@ void divideVertical(GridLocationRange range, int indexOfRightMostColInLeftSide, 
     GridLocation rightStartLoc(range.startRow() , indexOfRightMostColInLeftSide + 1);
     GridLocation rightEndLoc(range.endRow(), range.endCol());
 
-    leftSide = GridLocationRange (leftStartLoc, leftEndLoc);
-    rightSide = GridLocationRange (rightStartLoc, rightEndLoc);
+    leftSide = GridLocationRange(leftStartLoc, leftEndLoc);
+    rightSide = GridLocationRange(rightStartLoc, rightEndLoc);
 }
 
 
@@ -116,6 +115,7 @@ bool redistrictHelper(Grid<int>& populationGrid, GridLocationRange range, int ta
  * Returns: true if a valid redistricting was found, false otherwise
  * Assumes nDistricts > 0 and the total population divides evenly by it.
   */
+
 bool canRedistrict(Grid<int>& populationGrid, int nDistricts) {
     GridLocationRange totalRange = populationGrid.locations();
     int target = subgridSum(populationGrid, totalRange) / nDistricts;
