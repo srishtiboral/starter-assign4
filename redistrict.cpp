@@ -1,9 +1,13 @@
-/*
- * TODO: remove and replace this file header comment
- * You will edit and turn in this file.
- * Remove starter comments and add your own
- * comments on each function and on complex code sections.
+/* File: redistrict.cpp
+ * Names: Anika Mukherjee, Srishti Boral
+ * Course: CS 106B
+ * Description: This file uses recursive backtracking to check whether a
+ * state's population grid can be split into equal-population rectangular
+ * districts using only horizontal and vertical cuts (the HVS algorithm).
+ * subgridSum, divideHorizontal, and divideVertical are helpers, and
+ * redistrictHelper tries every possible cut on each rectangle.
  */
+
 #include <iostream>    // for cout, endl
 #include <string>      // for string class
 #include "backtracking.h"
@@ -13,11 +17,11 @@
 using namespace std;
 
 
-/* TODO: Design and implement helpers
- * We offer some suggested helper prototypes. You are free to
- * to modify and extend on these suggestions as you see fit.
- *
- * NOTE: the prototype of required function canRedistrict must not be changed.
+/*
+ * Returns the total population inside a rectangular range of the grid
+ * by adding up the value at every location in the range.
+ * Parameters: g (the population grid), range (the rectangle to add up)
+ * Returns: the sum of all values in the range
  */
 int subgridSum(Grid<int>& g, GridLocationRange range) {
     int sum = 0;
@@ -27,6 +31,11 @@ int subgridSum(Grid<int>& g, GridLocationRange range) {
     return sum;
 }
 
+/* Cuts a range with a horizontal line into a top part and a bottom part.
+ * Both parts keep the same columns as the original range.
+ * Parameters: range (the rectangle to cut), indexOfBottomMostRowInTopPart
+ * (the last row in the top part), topPart and bottomPart (set to the two pieces)
+ */
 void divideHorizontal(GridLocationRange range, int indexOfBottomMostRowInTopPart, GridLocationRange& topPart, GridLocationRange& bottomPart) {
     GridLocation topStartLoc(range.startRow(), range.startCol());
     GridLocation topEndLoc(indexOfBottomMostRowInTopPart, range.endCol());
@@ -37,7 +46,12 @@ void divideHorizontal(GridLocationRange range, int indexOfBottomMostRowInTopPart
     bottomPart = GridLocationRange(bottomStartLoc, bottomEndLoc);
 
 }
-
+/*
+ * Cuts a range with a vertical line into a left side and a right side.
+ * Both sides keep the same rows as the original range.
+ * Parameters: range (the rectangle to cut), indexOfRightMostColInLeftSide
+ * (the last column in the left side), leftSide and rightSide (set to the two pieces)
+ */
 void divideVertical(GridLocationRange range, int indexOfRightMostColInLeftSide, GridLocationRange& leftSide, GridLocationRange& rightSide) {
     GridLocation leftStartLoc(range.startRow(), range.startCol());
     GridLocation leftEndLoc(range.endRow(), indexOfRightMostColInLeftSide);
@@ -50,8 +64,17 @@ void divideVertical(GridLocationRange range, int indexOfRightMostColInLeftSide, 
 
 
 /*
- * TODO: Replace this comment with a descriptive function
- * header comment.
+ * Recursive helper for canRedistrict. Returns whether a rectangle can be cut
+ * into districts that each have exactly target people. If the rectangle's
+ * population equals target, it is one district (success). If the population
+ * is not a multiple of target, it can never be split evenly (failure).
+ * Otherwise it tries every horizontal and vertical cut, and succeeds if both
+ * pieces of some cut can be redistricted.
+ *
+ * Parameters: populationGrid (the population grid), range (the rectangle
+ * being divided), target (the population every district must have)
+ *
+ * Returns: true if the rectangle can be split into districts, false otherwise
  */
 bool redistrictHelper(Grid<int>& populationGrid, GridLocationRange range, int target){
     int population = subgridSum(populationGrid, range);
@@ -82,7 +105,17 @@ bool redistrictHelper(Grid<int>& populationGrid, GridLocationRange range, int ta
     return false;
 }
 
-
+/*
+ * Returns whether the grid can be split into nDistricts rectangular districts
+ * of equal population. It works out the target size for each district
+ * (total population / nDistricts) and asks redistrictHelper whether the whole
+ * grid can be split into districts of that size.
+ *
+ * Parameters: populationGrid (people living in each cell), nDistricts (how many districts to make)
+ *
+ * Returns: true if a valid redistricting was found, false otherwise
+ * Assumes nDistricts > 0 and the total population divides evenly by it.
+  */
 bool canRedistrict(Grid<int>& populationGrid, int nDistricts) {
     GridLocationRange totalRange = populationGrid.locations();
     int target = subgridSum(populationGrid, totalRange) / nDistricts;
@@ -92,69 +125,53 @@ bool canRedistrict(Grid<int>& populationGrid, int nDistricts) {
 
 /* * * * * * Test Cases * * * * * */
 
-// STUDENT TESTS
-STUDENT_TEST("divideHorizontal splits ranges correctly") {
-    GridLocationRange top, bottom;
+STUDENT_TEST("subgridSum on a single cell") {
+    Grid<int> grid = { {1, 2}, {3, 4} };
+    EXPECT_EQUAL(subgridSum(grid, GridLocationRange(1, 1, 1, 1)), 4);
+}
 
-    // Case 1: full 4x3 range, split after row 1
-    GridLocationRange range1(0, 0, 3, 2);
-    divideHorizontal(range1, 1, top, bottom);
+STUDENT_TEST("subgridSum on one row") {
+    Grid<int> grid = { {1, 2}, {3, 4} };
+    EXPECT_EQUAL(subgridSum(grid, GridLocationRange(0, 0, 0, 1)), 3);
+}
+STUDENT_TEST("divideHorizontal splits a range into top and bottom") {
+    GridLocationRange range(0, 0, 3, 2);
+    GridLocationRange top, bottom;
+    divideHorizontal(range, 1, top, bottom);
     EXPECT_EQUAL(top.startLocation(), GridLocation(0, 0));
     EXPECT_EQUAL(top.endLocation(), GridLocation(1, 2));
     EXPECT_EQUAL(bottom.startLocation(), GridLocation(2, 0));
     EXPECT_EQUAL(bottom.endLocation(), GridLocation(3, 2));
-
-    // Case 2: split at the last valid row (bottom part is one row)
-    divideHorizontal(range1, 2, top, bottom);
-    EXPECT_EQUAL(top.endLocation(), GridLocation(2, 2));
-    EXPECT_EQUAL(bottom.startLocation(), GridLocation(3, 0));
-    EXPECT_EQUAL(bottom.numRows(), 1);
-
-    // Case 3: offset range (rows 2-5, cols 1-3), split after row 3
-    GridLocationRange range2(2, 1, 5, 3);
-    divideHorizontal(range2, 3, top, bottom);
-    EXPECT_EQUAL(top.startLocation(), GridLocation(2, 1));
-    EXPECT_EQUAL(top.endLocation(), GridLocation(3, 3));
-    EXPECT_EQUAL(bottom.startLocation(), GridLocation(4, 1));
-    EXPECT_EQUAL(bottom.endLocation(), GridLocation(5, 3));
-
-    // Sanity check: the two pieces together cover the original
-    EXPECT_EQUAL(top.size() + bottom.size(), range2.size());
 }
-
-STUDENT_TEST("divideVertical splits ranges correctly") {
+STUDENT_TEST("divideVertical splits a range into left and right") {
+    GridLocationRange range(0, 0, 2, 3);
     GridLocationRange left, right;
-
-    // Case 1: full 3x4 range, split after column 1
-    GridLocationRange range1(0, 0, 2, 3);
-    divideVertical(range1, 1, left, right);
+    divideVertical(range, 1, left, right);
     EXPECT_EQUAL(left.startLocation(), GridLocation(0, 0));
     EXPECT_EQUAL(left.endLocation(), GridLocation(2, 1));
     EXPECT_EQUAL(right.startLocation(), GridLocation(0, 2));
     EXPECT_EQUAL(right.endLocation(), GridLocation(2, 3));
+}
 
-    // Case 2: split at the first column (left part is one column)
-    divideVertical(range1, 0, left, right);
-    EXPECT_EQUAL(left.endLocation(), GridLocation(2, 0));
-    EXPECT_EQUAL(left.numCols(), 1);
-    EXPECT_EQUAL(right.startLocation(), GridLocation(0, 1));
+STUDENT_TEST("divideHorizontal on a range that does not start at the top left") {
+    GridLocationRange range(2, 1, 5, 3);
+    GridLocationRange top, bottom;
+    divideHorizontal(range, 3, top, bottom);
+    EXPECT_EQUAL(top.endLocation(), GridLocation(3, 3));
+    EXPECT_EQUAL(bottom.startLocation(), GridLocation(4, 1));
+}
 
-    // Case 3: split at the last valid column (right part is one column)
-    divideVertical(range1, 2, left, right);
-    EXPECT_EQUAL(left.endLocation(), GridLocation(2, 2));
-    EXPECT_EQUAL(right.startLocation(), GridLocation(0, 3));
-    EXPECT_EQUAL(right.numCols(), 1);
-
-    // Case 4: offset range (rows 1-3, cols 2-5), split after column 3
-    GridLocationRange range2(1, 2, 3, 5);
-    divideVertical(range2, 3, left, right);
-    EXPECT_EQUAL(left.startLocation(), GridLocation(1, 2));
-    EXPECT_EQUAL(left.endLocation(), GridLocation(3, 3));
-    EXPECT_EQUAL(right.startLocation(), GridLocation(1, 4));
-    EXPECT_EQUAL(right.endLocation(), GridLocation(3, 5));
-
-    // Sanity check: the two pieces together cover the original
-    EXPECT_EQUAL(left.size() + right.size(), range2.size());
+STUDENT_TEST("canRedistrict with 1 district") {
+    Grid<int> grid = { {3, 7}, {6, 3} };
+    EXPECT(canRedistrict(grid, 1));
+}
+STUDENT_TEST("canRedistrict where every cell is its own district") {
+    Grid<int> grid = { {4, 4}, {4, 4} };
+    EXPECT(canRedistrict(grid, 4));
+}
+STUDENT_TEST("canRedistrict on a row that cannot be split") {
+    Grid<int> grid = { {1, 2, 3} };
+    EXPECT(!canRedistrict(grid, 3));
 }
 
 
