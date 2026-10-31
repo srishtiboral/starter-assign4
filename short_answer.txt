@@ -45,4 +45,11 @@ What questions might you ask about this job before making a decision? What might
 Which communities would be affected by the work you're doing?
 
 Please write your list of 3-5 questions and be sure to include ethical considerations.
-A8. TODO
+A8.
+1) What is the software actually for? Is it trying to make districts fair, or to help one party win more seats than it should?
+2) Which communities would these maps split up or group together? Gerrymandering usually hurts people of color, low-income communities, and other groups who already have less of a voice, so I would want to know who loses representation.
+3) Would the code and the maps be made public so voters and courts can check if they are fair?
+4) Is this legal in my state?
+5) If I am asked to do something I think is wrong, can I say no without losing my job?
+
+The biggest drawback is that this work could take away fair representation from real people. If I build the tool, I am also responsible for how it is used. Unless the goal was clearly to make districts fairer, like the HVS algorithm in this assignment, I would not take the job.
